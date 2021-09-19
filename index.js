@@ -11,14 +11,8 @@ app.use(cors());
 
 
 //Rutas
-app.get('/', (req, res) => {
+app.use('/api/items', require('./routes/product'));
 
-    res.json({
-        ok: true,
-        msg: 'Hola mundo'
-    })
-
-});
 
 app.listen(process.env.PORT, () => {
     console.log('Servidor corriendo' + 3000);
