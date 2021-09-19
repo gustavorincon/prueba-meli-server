@@ -9,8 +9,8 @@ router.get('/:id', (req, res) => {
             lastname: 'Rincon'
         },
         item: {
-            id: '123',
-            title: 'Moto g ',
+            id: 'MLA929316972',
+            title: 'Moto E7 32 Gb Azul Aqua 2 Gb Ram',
             price: {
                 currency: '$',
                 amount: 123,
