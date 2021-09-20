@@ -34,7 +34,7 @@ const getItem = (req, res) => {
                 });
             });
     }).catch(error => {
-        res.status(error.response.status).send({ error: 'Something failed!' });
+        res.status(error.response.status).send({ error: 'Estamos presetando problemas' });
     });
 }
 
