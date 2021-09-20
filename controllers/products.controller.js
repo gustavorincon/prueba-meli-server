@@ -33,52 +33,61 @@ const getItem = (req, res) => {
                     item
                 });
             });
-    }).catch(error => console.log(error));
+    }).catch(error => {
+        res.status(error.response.status).send({ error: 'Something failed!' });
+    });
 }
 
 
 
 const getItems = (req, res) => {
-    axios(`${process.env.URL_BASE}${process.env.COMPLEMENT_URL_SEARCH}?q=${req.query.q}`).then(responseitems => {
-        let listCategory = [];
-        let items = [];
-        if (responseitems.data) {
-            listCategory = (responseitems.data.filters || [])
-                .filter(category => category.id === 'category')
-                .map(category => category.values
-                    .map(value => value.path_from_root
-                        .map(path => path.name)
+    if (req.query.q && req.query.q.trim()) {
+        axios(`${process.env.URL_BASE}${process.env.COMPLEMENT_URL_SEARCH}?q=${req.query.q.trim()}`).then(responseitems => {
+            let categories = [];
+            let items = [];
+            if (responseitems.data && responseitems.data.results.length > 0) {
+                categories = (responseitems.data.filters || [])
+                    .filter(category => category.id === 'category')
+                    .map(category => category.values
+                        .map(value => value.path_from_root
+                            .map(path => path.name)
+                        )
+                        .find(() => true)
                     )
-                    .find(() => true)
-                )
-                .find(() => true);
+                    .find(() => true);
 
-            for (let i = 0; i < 4; i++) {
-                const item = responseitems.data.results[i];
-                items.push({
-                    id: item.id,
-                    title: item.title,
-                    price: {
-                        currency: item.currency_id,
-                        amount: item.available_quantity,
-                        decimals: item.price
-                    },
-                    picture: item.thumbnail,
-                    condition: item.condition,
-                    free_shipping: (item.shipping && item.shipping.free_shipping === true),
-                    location: {
-                        state: item.address.state_name,
-                        city: item.address.city_name
-                    }
-                });
+                for (let i = 0; i < 4; i++) {
+                    const item = responseitems.data.results[i];
+                    items.push({
+                        id: item.id,
+                        title: item.title,
+                        price: {
+                            currency: item.currency_id,
+                            amount: item.available_quantity,
+                            decimals: item.price
+                        },
+                        picture: item.thumbnail,
+                        condition: item.condition,
+                        free_shipping: (item.shipping && item.shipping.free_shipping === true),
+                        location: {
+                            state: item.address.state_name,
+                            city: item.address.city_name
+                        }
+                    });
+                }
             }
-        }
-        res.send({
-            author,
-            listCategory,
-            items
+            res.send({
+                author,
+                categories,
+                items
+            });
+        }).catch(error => {
+            res.status(error.response.status).send({ error: 'Estamos presentando problemas' });
         });
-    }).catch(error => console.log(error));;
+
+    }
+
+
 }
 
 
