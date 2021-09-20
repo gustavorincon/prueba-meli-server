@@ -39,82 +39,47 @@ const getItem = (req, res) => {
 
 
 const getItems = (req, res) => {
-    res.json({
-        author: {
-            name: 'Gustavo',
-            lastname: 'Rincon'
-        },
-        categories: ['Electronico', 'Digital', 'Celular'],
-        items: [{
-                id: '123',
-                title: 'Moto g 5',
-                price: {
-                    currency: '$',
-                    amount: 23,
-                    decimals: 12
-                },
-                picture: 'https://http2.mlstatic.com/D_634147-MLA46042090524_052021-I.jpg',
-                condition: 'Ninguna',
-                free_shipping: false,
-                location: {
-                    state: 'DF',
-                    city: 'Ciudad de mexico'
-                }
-            },
-            {
-                id: '1233',
-                title: 'Moto G 6',
-                price: {
-                    currency: '$',
-                    amount: 2322,
-                    decimals: 1233
-                },
-                picture: 'https://http2.mlstatic.com/D_634147-MLA46042090524_052021-I.jpg',
-                condition: 'Ninguna',
-                free_shipping: true,
-                location: {
-                    state: 'DF',
-                    city: 'Ciudad de mexico'
-                },
-            },
-            {
-                id: '1233',
-                title: 'Moto G 6',
-                price: {
-                    currency: '$',
-                    amount: 2322,
-                    decimals: 1233
-                },
-                picture: 'https://http2.mlstatic.com/D_634147-MLA46042090524_052021-I.jpg',
-                condition: 'Ninguna',
-                free_shipping: false,
-                location: {
-                    state: 'DF',
-                    city: 'Ciudad de mexico'
-                },
-            },
-            {
-                id: '1233',
-                title: 'Moto G 6',
-                price: {
-                    currency: '$',
-                    amount: 2322,
-                    decimals: 1233
-                },
-                picture: 'https://http2.mlstatic.com/D_634147-MLA46042090524_052021-I.jpg',
-                condition: 'Ninguna',
-                free_shipping: true,
-                location: {
-                    state: 'DF',
-                    city: 'Ciudad de mexico'
-                },
+    axios(`${process.env.URL_BASE}${process.env.COMPLEMENT_URL_SEARCH}?q=${req.query.q}`).then(responseitems => {
+        let listCategory = [];
+        let items = [];
+        if (responseitems.data) {
+            listCategory = (responseitems.data.filters || [])
+                .filter(category => category.id === 'category')
+                .map(category => category.values
+                    .map(value => value.path_from_root
+                        .map(path => path.name)
+                    )
+                    .find(() => true)
+                )
+                .find(() => true);
+
+            for (let i = 0; i < 4; i++) {
+                const item = responseitems.data.results[i];
+                items.push({
+                    id: item.id,
+                    title: item.title,
+                    price: {
+                        currency: item.currency_id,
+                        amount: item.available_quantity,
+                        decimals: item.price
+                    },
+                    picture: item.thumbnail,
+                    condition: item.condition,
+                    free_shipping: (item.shipping && item.shipping.free_shipping === true),
+                    location: {
+                        state: item.address.state_name,
+                        city: item.address.city_name
+                    }
+                });
             }
-
-        ]
-    })
+        }
+        res.send({
+            author,
+            listCategory,
+            items
+        });
+    }).catch(error => console.log(error));;
 }
-
-
 
 
 module.exports = {
